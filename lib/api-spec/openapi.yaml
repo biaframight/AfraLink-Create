@@ -3,13 +3,34 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: AfraLink transportation and logistics marketplace API for Southern Nigeria
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: Auth
+    description: Browser and mobile authentication endpoints.
+  - name: Storage
+    description: Object storage endpoints.
+  - name: Users
+    description: User profile management.
+  - name: Drivers
+    description: Driver profiles and listings.
+  - name: Rentals
+    description: Car rental listings.
+  - name: Bookings
+    description: Booking and service requests.
+  - name: Reviews
+    description: Ratings and reviews.
+  - name: Reports
+    description: Abuse and fraud reports.
+  - name: Admin
+    description: Admin dashboard and moderation.
+  - name: Locations
+    description: States and cities.
+
 paths:
   /healthz:
     get:
@@ -24,7 +45,880 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─── AUTH ───────────────────────────────────────────────────────────────────
+  /auth/user:
+    get:
+      tags: [Auth]
+      operationId: getCurrentAuthUser
+      summary: Get the currently authenticated user
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '200':
+          description: Auth status resolved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserEnvelope'
+  /login:
+    get:
+      tags: [Auth]
+      operationId: beginBrowserLogin
+      summary: Start the browser OIDC login flow
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '302':
+          description: Redirect to the OIDC authorization endpoint.
+  /callback:
+    get:
+      tags: [Auth]
+      operationId: handleBrowserLoginCallback
+      summary: Complete the browser OIDC login flow
+      parameters:
+        - name: code
+          in: query
+          required: false
+          schema: { type: string }
+        - name: state
+          in: query
+          required: false
+          schema: { type: string }
+        - name: iss
+          in: query
+          required: false
+          schema: { type: string, format: uri }
+      responses:
+        '302':
+          description: Redirect to the returnTo path on success.
+  /logout:
+    get:
+      tags: [Auth]
+      operationId: logoutBrowserSession
+      summary: Clear the session and begin OIDC logout
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - $ref: '#/components/parameters/SessionCookie'
+      responses:
+        '302':
+          description: Redirect to the OIDC provider logout URL.
+  /mobile-auth/token-exchange:
+    post:
+      tags: [Auth]
+      operationId: exchangeMobileAuthorizationCode
+      summary: Exchange a mobile OIDC code for a session token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileTokenExchangeRequest'
+      responses:
+        '200':
+          description: Session created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileTokenExchangeSuccess'
+        '400':
+          description: Missing or invalid required fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Token did not contain usable claims.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '500':
+          description: Token exchange failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /mobile-auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logoutMobileSession
+      summary: Delete a mobile session token
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: Logout processed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutSuccess'
+
+  # ─── OBJECT STORAGE ─────────────────────────────────────────────────────────
+  /storage/uploads/request-url:
+    post:
+      tags: [Storage]
+      operationId: requestUploadUrl
+      summary: Request a presigned upload URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadUrlRequest'
+      responses:
+        '200':
+          description: Presigned URL generated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadUrlResponse'
+        '400':
+          description: Invalid request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  # ─── USERS ───────────────────────────────────────────────────────────────────
+  /users/me:
+    get:
+      tags: [Users]
+      operationId: getMyProfile
+      summary: Get current user's full profile
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: User profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      tags: [Users]
+      operationId: updateMyProfile
+      summary: Update current user's profile
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+      responses:
+        '200':
+          description: Updated profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  # ─── DRIVERS ─────────────────────────────────────────────────────────────────
+  /drivers:
+    get:
+      tags: [Drivers]
+      operationId: listDrivers
+      summary: List and search available drivers
+      parameters:
+        - name: state
+          in: query
+          required: false
+          schema: { type: string }
+        - name: city
+          in: query
+          required: false
+          schema: { type: string }
+        - name: vehicleType
+          in: query
+          required: false
+          schema: { type: string }
+        - name: page
+          in: query
+          required: false
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: List of drivers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverListResponse'
+    post:
+      tags: [Drivers]
+      operationId: createDriver
+      summary: Register a driver profile
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverInput'
+      responses:
+        '201':
+          description: Driver profile created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '400':
+          description: Invalid input.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /drivers/{id}:
+    get:
+      tags: [Drivers]
+      operationId: getDriver
+      summary: Get a driver profile by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Driver profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      tags: [Drivers]
+      operationId: updateDriver
+      summary: Update a driver profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverUpdate'
+      responses:
+        '200':
+          description: Updated driver.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /drivers/me:
+    get:
+      tags: [Drivers]
+      operationId: getMyDriver
+      summary: Get the current user's driver profile
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: Current user's driver profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '404':
+          description: No driver profile found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  # ─── CAR RENTALS ─────────────────────────────────────────────────────────────
+  /rentals:
+    get:
+      tags: [Rentals]
+      operationId: listRentals
+      summary: List and search rental vehicles
+      parameters:
+        - name: state
+          in: query
+          required: false
+          schema: { type: string }
+        - name: city
+          in: query
+          required: false
+          schema: { type: string }
+        - name: vehicleType
+          in: query
+          required: false
+          schema: { type: string }
+        - name: page
+          in: query
+          required: false
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 20 }
+      responses:
+        '200':
+          description: List of rental vehicles.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalListResponse'
+    post:
+      tags: [Rentals]
+      operationId: createRental
+      summary: List a vehicle for rental
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RentalInput'
+      responses:
+        '201':
+          description: Rental listing created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+        '400':
+          description: Invalid input.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /rentals/{id}:
+    get:
+      tags: [Rentals]
+      operationId: getRental
+      summary: Get a rental listing by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Rental listing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      tags: [Rentals]
+      operationId: updateRental
+      summary: Update a rental listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RentalUpdate'
+      responses:
+        '200':
+          description: Updated rental.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    delete:
+      tags: [Rentals]
+      operationId: deleteRental
+      summary: Remove a rental listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '204':
+          description: Deleted.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  # ─── BOOKINGS ─────────────────────────────────────────────────────────────────
+  /bookings:
+    get:
+      tags: [Bookings]
+      operationId: listBookings
+      summary: List bookings for the current user
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+        - name: role
+          in: query
+          required: false
+          schema: { type: string, enum: [customer, driver] }
+      responses:
+        '200':
+          description: List of bookings.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingListResponse'
+    post:
+      tags: [Bookings]
+      operationId: createBooking
+      summary: Submit a ride or delivery request
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingInput'
+      responses:
+        '201':
+          description: Booking created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: Invalid input.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /bookings/{id}:
+    get:
+      tags: [Bookings]
+      operationId: getBooking
+      summary: Get a booking by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: Booking.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+    patch:
+      tags: [Bookings]
+      operationId: updateBooking
+      summary: Accept, reject, or cancel a booking
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingStatusUpdate'
+      responses:
+        '200':
+          description: Updated booking.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  # ─── REVIEWS ─────────────────────────────────────────────────────────────────
+  /reviews:
+    get:
+      tags: [Reviews]
+      operationId: listReviews
+      summary: List reviews for a driver or rental
+      parameters:
+        - name: driverId
+          in: query
+          required: false
+          schema: { type: integer }
+        - name: rentalId
+          in: query
+          required: false
+          schema: { type: integer }
+      responses:
+        '200':
+          description: List of reviews.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewListResponse'
+    post:
+      tags: [Reviews]
+      operationId: createReview
+      summary: Submit a rating and review
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewInput'
+      responses:
+        '201':
+          description: Review created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid input.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  # ─── REPORTS ─────────────────────────────────────────────────────────────────
+  /reports:
+    post:
+      tags: [Reports]
+      operationId: createReport
+      summary: Submit an abuse or fraud report
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportInput'
+      responses:
+        '201':
+          description: Report submitted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+        '400':
+          description: Invalid input.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  # ─── LOCATIONS ───────────────────────────────────────────────────────────────
+  /locations/states:
+    get:
+      tags: [Locations]
+      operationId: listStates
+      summary: List all supported states in Southern Nigeria
+      responses:
+        '200':
+          description: List of states.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StateListResponse'
+
+  /locations/cities:
+    get:
+      tags: [Locations]
+      operationId: listCities
+      summary: List cities, optionally filtered by state
+      parameters:
+        - name: state
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of cities.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CityListResponse'
+
+  # ─── ADMIN ───────────────────────────────────────────────────────────────────
+  /admin/stats:
+    get:
+      tags: [Admin]
+      operationId: getAdminStats
+      summary: Get platform-wide analytics and summary stats
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: Admin stats.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminStats'
+        '403':
+          description: Forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /admin/pending-drivers:
+    get:
+      tags: [Admin]
+      operationId: listPendingDrivers
+      summary: List drivers pending verification
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: List of pending drivers.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverListResponse'
+
+  /admin/drivers/{id}/approve:
+    post:
+      tags: [Admin]
+      operationId: approveDriver
+      summary: Approve a driver
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: Driver approved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+
+  /admin/drivers/{id}/reject:
+    post:
+      tags: [Admin]
+      operationId: rejectDriver
+      summary: Reject a driver application
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectionNote'
+      responses:
+        '200':
+          description: Driver rejected.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+
+  /admin/pending-rentals:
+    get:
+      tags: [Admin]
+      operationId: listPendingRentals
+      summary: List rental vehicles pending verification
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: List of pending rentals.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RentalListResponse'
+
+  /admin/rentals/{id}/approve:
+    post:
+      tags: [Admin]
+      operationId: approveRental
+      summary: Approve a rental vehicle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: Rental approved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+
+  /admin/rentals/{id}/reject:
+    post:
+      tags: [Admin]
+      operationId: rejectRental
+      summary: Reject a rental vehicle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectionNote'
+      responses:
+        '200':
+          description: Rental rejected.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rental'
+
+  /admin/users/{id}/suspend:
+    post:
+      tags: [Admin]
+      operationId: suspendUser
+      summary: Suspend a user account
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: User suspended.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+  /admin/reports:
+    get:
+      tags: [Admin]
+      operationId: listAdminReports
+      summary: List all reports for admin review
+      parameters:
+        - $ref: '#/components/parameters/AuthorizationSessionHeader'
+      responses:
+        '200':
+          description: List of reports.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportListResponse'
+
+  # ─── FEATURED LISTINGS ────────────────────────────────────────────────────────
+  /featured:
+    get:
+      tags: [Drivers]
+      operationId: listFeatured
+      summary: Get featured drivers and rentals for homepage
+      responses:
+        '200':
+          description: Featured listings.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeaturedResponse'
+
 components:
+  parameters:
+    AuthorizationSessionHeader:
+      name: Authorization
+      in: header
+      required: false
+      description: Opaque session token — `Bearer <sid>`.
+      schema: { type: string }
+    SessionCookie:
+      name: sid
+      in: cookie
+      required: false
+      description: Browser session cookie.
+      schema: { type: string }
+
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +928,420 @@ components:
       required:
         - status
 
+    # ── AUTH SCHEMAS ────────────────────────────────────────────────────────────
+    AuthUser:
+      type: object
+      required: [id, email, firstName, lastName, profileImageUrl]
+      properties:
+        id: { type: string }
+        email: { type: [string, 'null'], format: email }
+        firstName: { type: [string, 'null'] }
+        lastName: { type: [string, 'null'] }
+        profileImageUrl: { type: [string, 'null'] }
+    AuthUserEnvelope:
+      type: object
+      required: [user]
+      properties:
+        user:
+          oneOf:
+            - $ref: '#/components/schemas/AuthUser'
+            - type: 'null'
+    MobileTokenExchangeRequest:
+      type: object
+      required: [code, code_verifier, redirect_uri, state]
+      properties:
+        code: { type: string, minLength: 1 }
+        code_verifier: { type: string, minLength: 1 }
+        redirect_uri: { type: string, minLength: 1, format: uri }
+        state: { type: string, minLength: 1 }
+        nonce: { type: string, minLength: 1 }
+    MobileTokenExchangeSuccess:
+      type: object
+      required: [token]
+      properties:
+        token: { type: string }
+    LogoutSuccess:
+      type: object
+      required: [success]
+      properties:
+        success: { type: boolean, const: true }
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+
+    # ── STORAGE SCHEMAS ─────────────────────────────────────────────────────────
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name: { type: string }
+        size: { type: integer }
+        contentType: { type: string }
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL: { type: string }
+        objectPath: { type: string }
+
+    # ── USER SCHEMAS ────────────────────────────────────────────────────────────
+    UserProfile:
+      type: object
+      required: [id, role, createdAt]
+      properties:
+        id: { type: string }
+        role: { type: string, enum: [customer, driver, rental_owner, admin] }
+        fullName: { type: [string, 'null'] }
+        phone: { type: [string, 'null'] }
+        email: { type: [string, 'null'] }
+        profilePhotoUrl: { type: [string, 'null'] }
+        state: { type: [string, 'null'] }
+        city: { type: [string, 'null'] }
+        isSuspended: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    UserProfileUpdate:
+      type: object
+      properties:
+        fullName: { type: string }
+        phone: { type: string }
+        profilePhotoUrl: { type: string }
+        state: { type: string }
+        city: { type: string }
+        role: { type: string, enum: [customer, driver, rental_owner] }
+
+    # ── DRIVER SCHEMAS ──────────────────────────────────────────────────────────
+    Driver:
+      type: object
+      required: [id, userId, fullName, phone, vehicleType, state, city, verificationStatus, isAvailable, createdAt]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        fullName: { type: string }
+        phone: { type: string }
+        email: { type: [string, 'null'] }
+        gender: { type: [string, 'null'] }
+        dateOfBirth: { type: [string, 'null'] }
+        address: { type: [string, 'null'] }
+        state: { type: string }
+        city: { type: string }
+        vehicleType: { type: string }
+        vehicleBrand: { type: [string, 'null'] }
+        vehicleModel: { type: [string, 'null'] }
+        vehicleColor: { type: [string, 'null'] }
+        plateNumber: { type: [string, 'null'] }
+        ninNumber: { type: [string, 'null'] }
+        ninSlipUrl: { type: [string, 'null'] }
+        selfieUrl: { type: [string, 'null'] }
+        vehiclePhotoUrl: { type: [string, 'null'] }
+        profilePhotoUrl: { type: [string, 'null'] }
+        verificationStatus: { type: string, enum: [pending, approved, rejected] }
+        rejectionNote: { type: [string, 'null'] }
+        isAvailable: { type: boolean }
+        averageRating: { type: [number, 'null'] }
+        reviewCount: { type: integer }
+        isFeatured: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    DriverInput:
+      type: object
+      required: [fullName, phone, state, city, vehicleType]
+      properties:
+        fullName: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        gender: { type: string }
+        dateOfBirth: { type: string }
+        address: { type: string }
+        state: { type: string }
+        city: { type: string }
+        vehicleType: { type: string }
+        vehicleBrand: { type: string }
+        vehicleModel: { type: string }
+        vehicleColor: { type: string }
+        plateNumber: { type: string }
+        ninNumber: { type: string }
+        ninSlipUrl: { type: string }
+        selfieUrl: { type: string }
+        vehiclePhotoUrl: { type: string }
+        profilePhotoUrl: { type: string }
+    DriverUpdate:
+      type: object
+      properties:
+        fullName: { type: string }
+        phone: { type: string }
+        vehicleBrand: { type: string }
+        vehicleModel: { type: string }
+        vehicleColor: { type: string }
+        plateNumber: { type: string }
+        ninSlipUrl: { type: string }
+        selfieUrl: { type: string }
+        vehiclePhotoUrl: { type: string }
+        profilePhotoUrl: { type: string }
+        isAvailable: { type: boolean }
+        state: { type: string }
+        city: { type: string }
+    DriverListResponse:
+      type: object
+      required: [drivers, total]
+      properties:
+        drivers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Driver'
+        total: { type: integer }
+
+    # ── RENTAL SCHEMAS ──────────────────────────────────────────────────────────
+    Rental:
+      type: object
+      required: [id, userId, vehicleName, brand, model, state, city, dailyPrice, verificationStatus, isAvailable, createdAt]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        ownerName: { type: [string, 'null'] }
+        ownerPhone: { type: [string, 'null'] }
+        vehicleName: { type: string }
+        brand: { type: string }
+        model: { type: string }
+        year: { type: [integer, 'null'] }
+        color: { type: [string, 'null'] }
+        vehicleType: { type: [string, 'null'] }
+        transmission: { type: [string, 'null'] }
+        fuelType: { type: [string, 'null'] }
+        seatingCapacity: { type: [integer, 'null'] }
+        plateNumber: { type: [string, 'null'] }
+        state: { type: string }
+        city: { type: string }
+        dailyPrice: { type: number }
+        weeklyPrice: { type: [number, 'null'] }
+        monthlyPrice: { type: [number, 'null'] }
+        photoUrls: { type: array, items: { type: string } }
+        verificationStatus: { type: string, enum: [pending, approved, rejected] }
+        isAvailable: { type: boolean }
+        isFeatured: { type: boolean }
+        averageRating: { type: [number, 'null'] }
+        reviewCount: { type: integer }
+        createdAt: { type: string, format: date-time }
+    RentalInput:
+      type: object
+      required: [vehicleName, brand, model, state, city, dailyPrice]
+      properties:
+        vehicleName: { type: string }
+        brand: { type: string }
+        model: { type: string }
+        year: { type: integer }
+        color: { type: string }
+        vehicleType: { type: string }
+        transmission: { type: string }
+        fuelType: { type: string }
+        seatingCapacity: { type: integer }
+        plateNumber: { type: string }
+        state: { type: string }
+        city: { type: string }
+        dailyPrice: { type: number }
+        weeklyPrice: { type: number }
+        monthlyPrice: { type: number }
+        photoUrls: { type: array, items: { type: string } }
+        ownerPhone: { type: string }
+    RentalUpdate:
+      type: object
+      properties:
+        vehicleName: { type: string }
+        dailyPrice: { type: number }
+        weeklyPrice: { type: number }
+        monthlyPrice: { type: number }
+        isAvailable: { type: boolean }
+        photoUrls: { type: array, items: { type: string } }
+        ownerPhone: { type: string }
+    RentalListResponse:
+      type: object
+      required: [rentals, total]
+      properties:
+        rentals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rental'
+        total: { type: integer }
+
+    # ── BOOKING SCHEMAS ─────────────────────────────────────────────────────────
+    Booking:
+      type: object
+      required: [id, customerId, serviceType, pickupLocation, status, createdAt]
+      properties:
+        id: { type: integer }
+        customerId: { type: string }
+        driverId: { type: [integer, 'null'] }
+        rentalId: { type: [integer, 'null'] }
+        serviceType: { type: string }
+        pickupLocation: { type: string }
+        destination: { type: [string, 'null'] }
+        notes: { type: [string, 'null'] }
+        status: { type: string, enum: [pending, accepted, rejected, cancelled, completed] }
+        createdAt: { type: string, format: date-time }
+    BookingInput:
+      type: object
+      required: [serviceType, pickupLocation]
+      properties:
+        driverId: { type: integer }
+        rentalId: { type: integer }
+        serviceType: { type: string }
+        pickupLocation: { type: string }
+        destination: { type: string }
+        notes: { type: string }
+    BookingStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [accepted, rejected, cancelled, completed] }
+    BookingListResponse:
+      type: object
+      required: [bookings]
+      properties:
+        bookings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Booking'
+
+    # ── REVIEW SCHEMAS ──────────────────────────────────────────────────────────
+    Review:
+      type: object
+      required: [id, reviewerId, rating, createdAt]
+      properties:
+        id: { type: integer }
+        reviewerId: { type: string }
+        reviewerName: { type: [string, 'null'] }
+        driverId: { type: [integer, 'null'] }
+        rentalId: { type: [integer, 'null'] }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        comment: { type: [string, 'null'] }
+        createdAt: { type: string, format: date-time }
+    ReviewInput:
+      type: object
+      required: [rating]
+      properties:
+        driverId: { type: integer }
+        rentalId: { type: integer }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        comment: { type: string }
+    ReviewListResponse:
+      type: object
+      required: [reviews]
+      properties:
+        reviews:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+
+    # ── REPORT SCHEMAS ──────────────────────────────────────────────────────────
+    Report:
+      type: object
+      required: [id, reporterId, targetType, targetId, reason, createdAt]
+      properties:
+        id: { type: integer }
+        reporterId: { type: string }
+        targetType: { type: string, enum: [driver, customer, rental] }
+        targetId: { type: string }
+        reason: { type: string }
+        description: { type: [string, 'null'] }
+        status: { type: string, enum: [open, reviewed, dismissed] }
+        createdAt: { type: string, format: date-time }
+    ReportInput:
+      type: object
+      required: [targetType, targetId, reason]
+      properties:
+        targetType: { type: string, enum: [driver, customer, rental] }
+        targetId: { type: string }
+        reason: { type: string }
+        description: { type: string }
+    ReportListResponse:
+      type: object
+      required: [reports]
+      properties:
+        reports:
+          type: array
+          items:
+            $ref: '#/components/schemas/Report'
+
+    # ── LOCATION SCHEMAS ────────────────────────────────────────────────────────
+    State:
+      type: object
+      required: [id, name, region]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        region: { type: string }
+    StateListResponse:
+      type: object
+      required: [states]
+      properties:
+        states:
+          type: array
+          items:
+            $ref: '#/components/schemas/State'
+    City:
+      type: object
+      required: [id, name, stateId, stateName]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        stateId: { type: integer }
+        stateName: { type: string }
+    CityListResponse:
+      type: object
+      required: [cities]
+      properties:
+        cities:
+          type: array
+          items:
+            $ref: '#/components/schemas/City'
+
+    # ── ADMIN SCHEMAS ───────────────────────────────────────────────────────────
+    AdminStats:
+      type: object
+      required: [totalCustomers, totalDrivers, totalRentals, pendingDrivers, pendingRentals, totalBookings, totalReports, topStates, topVehicleTypes]
+      properties:
+        totalCustomers: { type: integer }
+        totalDrivers: { type: integer }
+        totalRentals: { type: integer }
+        pendingDrivers: { type: integer }
+        pendingRentals: { type: integer }
+        totalBookings: { type: integer }
+        totalReports: { type: integer }
+        topStates:
+          type: array
+          items:
+            $ref: '#/components/schemas/StateCount'
+        topVehicleTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleTypeCount'
+    StateCount:
+      type: object
+      required: [state, count]
+      properties:
+        state: { type: string }
+        count: { type: integer }
+    VehicleTypeCount:
+      type: object
+      required: [vehicleType, count]
+      properties:
+        vehicleType: { type: string }
+        count: { type: integer }
+    RejectionNote:
+      type: object
+      properties:
+        note: { type: string }
+
+    # ── FEATURED SCHEMAS ─────────────────────────────────────────────────────────
+    FeaturedResponse:
+      type: object
+      required: [drivers, rentals]
+      properties:
+        drivers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Driver'
+        rentals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rental'

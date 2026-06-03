@@ -1,0 +1,2 @@
+- [AfraLink API conventions](afralink-api-conventions.md) — mutation shapes, states/cities field names, SelectItem sentinel values, WhatsApp link format
+- [AfraLink tsconfig gotcha](afralink-tsconfig.md) — non-composite libs must not be in afralink tsconfig references

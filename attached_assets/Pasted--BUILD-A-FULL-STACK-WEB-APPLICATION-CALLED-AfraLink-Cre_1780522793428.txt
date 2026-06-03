@@ -1,0 +1,449 @@
+# BUILD A FULL-STACK WEB APPLICATION CALLED "AfraLink "
+
+Create a modern, mobile-first Progressive Web App (PWA) called **AfraLink **
+
+AfraLink is a transportation and logistics marketplace for Southern Nigeria.
+
+The platform connects customers directly with:
+
+* Private car drivers
+* Taxi drivers
+* Keke riders
+* Motorcycle riders
+* Bus drivers
+* Mini-bus drivers
+* Van drivers
+* Pickup drivers
+* Truck drivers
+* Lorry drivers
+* Delivery drivers
+* Logistics operators
+* Car rental owners
+
+IMPORTANT:
+
+AfraLink  does NOT process payments.
+
+Customers contact service providers directly and negotiate prices themselves.
+
+The platform acts only as a marketplace connecting customers with verified drivers and vehicle owners.
+
+---
+
+# OPERATING REGION
+
+Support only Southern Nigeria.
+
+Include:
+
+## South West
+
+* Lagos
+* Ogun
+* Oyo
+* Osun
+* Ondo
+* Ekiti
+
+## South East
+
+* Anambra
+* Imo
+* Abia
+* Enugu
+* Ebonyi
+
+## South South
+
+* Rivers
+* Delta
+* Bayelsa
+* Akwa Ibom
+* Cross River
+* Edo
+
+Exclude all Northern Nigerian states.
+
+---
+
+# USER ROLES
+
+Create four user roles:
+
+## Customer
+
+Can:
+
+* Register
+* Login
+* Search for drivers
+* Search for rental cars
+* Search for logistics services
+* View profiles
+* Contact providers directly
+* Call providers
+* WhatsApp providers
+* Submit ride requests
+* Submit delivery requests
+* Leave ratings and reviews
+
+---
+
+## Driver
+
+Can register as:
+
+* Private Car Driver
+* Taxi Driver
+* Keke Rider
+* Motorcycle Rider
+* Bus Driver
+* Van Driver
+* Pickup Driver
+* Truck Driver
+* Lorry Driver
+* Logistics Driver
+
+Can:
+
+* Create profile
+* Upload documents
+* Manage availability
+* Receive requests
+* Accept or reject requests
+* Receive calls and WhatsApp messages
+
+---
+
+## Car Rental Owner
+
+Can:
+
+* Register cars for rent
+* Upload car photos
+* Set daily rental rates
+* Set weekly rental rates
+* Set monthly rental rates
+* Mark vehicles available or unavailable
+* Receive direct calls
+* Receive WhatsApp inquiries
+
+---
+
+## Admin
+
+Can:
+
+* Approve drivers
+* Approve rental vehicles
+* Suspend users
+* Delete accounts
+* Review reports
+* Manage states and cities
+* Manage featured listings
+* View analytics
+
+---
+
+# DRIVER VERIFICATION
+
+Driver registration requires:
+
+## Personal Information
+
+* Full Name
+* Phone Number
+* Email Address
+* Gender
+* Date of Birth
+
+## Residential Information
+
+* Full Address
+* State
+* City
+
+## Vehicle Information
+
+* Vehicle Type
+* Vehicle Brand
+* Vehicle Model
+* Vehicle Color
+* Plate Number
+
+## Verification Documents
+
+Mandatory:
+
+* NIN Number
+* NIN Slip Image
+* Driver Selfie
+* Vehicle Photo
+* Driver Profile Photo
+
+Drivers remain pending until approved by Admin.
+
+---
+
+# CAR RENTAL SECTION
+
+Create a dedicated Car Rental Marketplace.
+
+Vehicle owners can list:
+
+* Sedans
+* SUVs
+* Luxury Cars
+* Buses
+* Vans
+* Pickup Trucks
+
+Required fields:
+
+* Vehicle Name
+* Brand
+* Model
+* Year
+* Color
+* Transmission
+* Fuel Type
+* Seating Capacity
+* Daily Rental Price
+* Weekly Rental Price
+* Monthly Rental Price
+* Vehicle Photos
+* Plate Number
+
+Display:
+
+* Photos
+* Rental Price
+* Owner Contact Number
+* WhatsApp Button
+* Location
+* Availability Status
+
+No payment processing.
+
+Customers contact owners directly.
+
+---
+
+# SERVICE CATEGORIES
+
+Create categories:
+
+* Taxi Ride
+* Keke Ride
+* Motorcycle Ride
+* Intercity Transport
+* Bus Hire
+* Truck Hire
+* Pickup Hire
+* Van Hire
+* Moving Services
+* Delivery Services
+* Logistics Services
+* Car Rental
+
+---
+
+# BOOKING FLOW
+
+Customer enters:
+
+* Pickup Location
+* Destination
+* Vehicle Type Needed
+
+Display available providers.
+
+Each listing shows:
+
+* Profile Photo
+* Name
+* Verification Badge
+* Vehicle Type
+* Plate Number
+* Rating
+* Contact Number
+* WhatsApp Button
+
+Customer can:
+
+* Call
+* WhatsApp
+* Submit Request
+
+No payment gateway.
+
+No wallet system.
+
+No fare calculation.
+
+Prices are negotiated outside the platform.
+
+---
+
+# LOCATION FEATURES
+
+Use OpenStreetMap.
+
+Allow:
+
+* GPS Detection
+* State Selection
+* City Selection
+
+Prioritize nearby providers.
+
+---
+
+# REVIEWS
+
+Customers can:
+
+* Rate 1–5 stars
+* Leave comments
+* Report abuse
+
+---
+
+# SAFETY FEATURES
+
+Include:
+
+* Verified Driver Badge
+* Verified Rental Vehicle Badge
+* Report Driver
+* Report Customer
+* Report Vehicle Listing
+* Fraud Alert System
+
+---
+
+# ADMIN DASHBOARD
+
+Display:
+
+* Total Customers
+* Total Drivers
+* Total Rental Cars
+* Pending Verifications
+* Active Listings
+* Booking Requests
+* Top Cities
+* Top Categories
+
+Verification Center:
+
+* Approve Driver
+* Reject Driver
+* Approve Rental Vehicle
+* Reject Rental Vehicle
+
+---
+
+# DATABASE
+
+Use PostgreSQL.
+
+Create tables:
+
+* users
+* customers
+* drivers
+* rental_vehicles
+* bookings
+* reviews
+* reports
+* verifications
+* states
+* cities
+* vehicle_categories
+* featured_listings
+
+---
+
+# TECH STACK
+
+Frontend:
+
+* React
+* TypeScript
+* Tailwind CSS
+
+Backend:
+
+* Node.js
+* Express.js
+
+Database:
+
+* PostgreSQL
+
+Authentication:
+
+* JWT Authentication
+
+Storage:
+
+* Cloudinary for images
+
+Maps:
+
+* OpenStreetMap
+
+---
+
+# PWA FEATURES
+
+Make the app installable on Android and iPhone.
+
+Include:
+
+* Add to Home Screen
+* Offline Support
+* Push Notifications
+
+---
+
+# FUTURE MONETIZATION FEATURES
+
+Build database structure to support:
+
+* Driver Subscription Plans
+* Featured Listings
+* Premium Verification
+* Business Accounts
+* Sponsored Ads
+
+Do not activate payments yet.
+
+Only prepare the architecture for future activation.
+
+---
+
+# DESIGN STYLE
+
+Modern, clean and professional.
+
+Inspired by:
+
+* Uber
+* Lalamove
+* Bolt
+
+Colors:
+
+* Green
+* White
+* Dark Gray
+
+The design must be mobile-first because most users will access the platform from smartphones.
+
+The homepage should clearly advertise:
+
+"Find a Driver, Rent a Vehicle, Move Anything."
+
+Build the platform to be scalable across all of Southern Nigeria.
