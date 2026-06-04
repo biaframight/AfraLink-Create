@@ -20,6 +20,8 @@ import BecomeDriver from "@/pages/become-driver";
 import ListVehicle from "@/pages/list-vehicle";
 import AdminDashboard from "@/pages/admin";
 import Profile from "@/pages/profile";
+import ForgotPassword from "@/pages/forgot-password";
+import ResetPassword from "@/pages/reset-password";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -81,6 +83,8 @@ function Router() {
     <OnboardingGate>
       <Switch>
         <Route path="/login" component={LoginPage} />
+        <Route path="/forgot-password" component={ForgotPassword} />
+        <Route path="/reset-password" component={ResetPassword} />
         <Route path="/onboarding" component={Onboarding} />
 
         <Route>

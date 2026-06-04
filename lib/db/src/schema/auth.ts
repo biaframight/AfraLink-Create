@@ -27,6 +27,8 @@ export const usersTable = pgTable("users", {
   state: text("state"),
   city: text("city"),
   passwordHash: text("password_hash"),
+  resetToken: text("reset_token"),
+  resetTokenExpiry: timestamp("reset_token_expiry", { withTimezone: true }),
   isSuspended: boolean("is_suspended").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),

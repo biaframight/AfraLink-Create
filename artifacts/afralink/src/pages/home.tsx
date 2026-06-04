@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, MapPin, Car, ShieldCheck, Zap, Phone, Truck, Package, Bus, Bike, Star, ArrowRight } from "lucide-react";
+import { Search, MapPin, Car, ShieldCheck, Zap, Phone, Truck, Package, Bus, Bike, Star, ArrowRight, CheckCircle } from "lucide-react";
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -221,24 +221,101 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-primary rounded-[3rem] p-12 text-center text-primary-foreground shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 rounded-full bg-black/10 blur-3xl"></div>
-        <div className="relative z-10 max-w-2xl mx-auto space-y-8">
-          <h2 className="text-4xl font-bold tracking-tight">Join the Network</h2>
-          <p className="text-primary-foreground/80 text-lg">
-            Whether you drive a keke, own a fleet of buses, or have a delivery van. List your services on AfraLink and get more customers today.
+      {/* Provider CTA — Become a Driver / List Your Vehicle */}
+      <section className="space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Earn with AfraLink</h2>
+          <p className="text-slate-500 max-w-xl mx-auto">
+            Join thousands of transport providers earning daily across Southern Nigeria.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link href="/become-driver">
-              <Button size="lg" className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-white text-primary hover:bg-slate-50 font-bold text-lg">
-                Register as a Driver
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Become a Driver */}
+          <div className="relative bg-slate-900 rounded-3xl p-8 text-white overflow-hidden flex flex-col">
+            <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-primary/20 -mr-16 -mt-16 blur-2xl pointer-events-none" />
+            <div className="relative z-10 flex-1 flex flex-col">
+              <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center mb-5">
+                <Car className="w-7 h-7 text-primary" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">Drive &amp; Earn</h3>
+              <p className="text-slate-400 mb-5 text-sm leading-relaxed">
+                Turn your vehicle into a daily income. Connect directly with passengers and businesses across your state — no commission cuts.
+              </p>
+              <ul className="space-y-2.5 mb-8 flex-1">
+                {[
+                  "Set your own schedule — work when you want",
+                  "Keep 100% of your earnings",
+                  "Get a verified badge to attract more bookings",
+                  "Free to join — no monthly fees",
+                ].map(item => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-slate-300">
+                    <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/become-driver">
+                <Button className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 font-semibold text-base">
+                  Become a Driver <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* List a Vehicle */}
+          <div className="relative bg-primary rounded-3xl p-8 text-white overflow-hidden flex flex-col">
+            <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-white/10 -mr-16 -mt-16 blur-2xl pointer-events-none" />
+            <div className="relative z-10 flex-1 flex flex-col">
+              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center mb-5">
+                <Truck className="w-7 h-7 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">List Your Vehicle</h3>
+              <p className="text-primary-foreground/80 mb-5 text-sm leading-relaxed">
+                Own a car, bus, or van? List it for rent on AfraLink and let customers come to you — no middle-man, no hassle.
+              </p>
+              <ul className="space-y-2.5 mb-8 flex-1">
+                {[
+                  "You set the price and availability",
+                  "Upload photos and attract quality renters",
+                  "List up to 5 vehicles at once",
+                  "Reach customers across your entire state",
+                ].map(item => (
+                  <li key={item} className="flex items-start gap-2.5 text-sm text-primary-foreground/90">
+                    <CheckCircle className="w-4 h-4 text-white mt-0.5 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/list-vehicle">
+                <Button className="w-full h-12 rounded-2xl bg-white text-primary hover:bg-slate-50 font-semibold text-base">
+                  List a Vehicle <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom CTA banner */}
+      <section className="bg-slate-900 rounded-[3rem] p-10 text-center text-white shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-primary/20 blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
+        <div className="relative z-10 max-w-xl mx-auto space-y-5">
+          <Badge className="bg-primary/20 text-primary border border-primary/30 text-xs px-3 py-1">Free to join</Badge>
+          <h2 className="text-3xl font-bold tracking-tight">Ready to get started?</h2>
+          <p className="text-slate-400 text-base">
+            Join AfraLink today — find a driver, rent a vehicle, or start earning.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+            <Link href="/login">
+              <Button size="lg" className="w-full sm:w-auto h-12 px-8 rounded-2xl bg-primary hover:bg-primary/90 font-bold">
+                Create Free Account
               </Button>
             </Link>
-            <Link href="/list-vehicle">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 rounded-2xl border-white/30 text-white hover:bg-white/10 font-bold text-lg bg-transparent">
-                List Your Vehicle
+            <Link href="/drivers">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 rounded-2xl border-white/20 text-white hover:bg-white/10 font-bold bg-transparent">
+                Browse Drivers
               </Button>
             </Link>
           </div>

@@ -101,7 +101,7 @@ router.patch("/rentals/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  if (existing.userId !== req.user.id && req.user.role !== "admin") {
+  if (existing.userId !== req.user.id && (req.user as any).role !== "admin") {
     res.status(403).json({ error: "Forbidden" });
     return;
   }
@@ -130,7 +130,7 @@ router.delete("/rentals/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  if (existing.userId !== req.user.id && req.user.role !== "admin") {
+  if (existing.userId !== req.user.id && (req.user as any).role !== "admin") {
     res.status(403).json({ error: "Forbidden" });
     return;
   }

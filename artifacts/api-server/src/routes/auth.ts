@@ -193,6 +193,72 @@ router.post("/auth/local-logout", async (req: Request, res: Response) => {
   res.json({ success: true });
 });
 
+router.post("/auth/forgot-password", async (req: Request, res: Response) => {
+  const { email } = req.body;
+  if (!email) {
+    res.status(400).json({ error: "Email is required" });
+    return;
+  }
+
+  const [user] = await db
+    .select({ id: usersTable.id, email: usersTable.email })
+    .from(usersTable)
+    .where(eq(usersTable.email, email));
+
+  if (!user) {
+    res.json({ message: "If that email is registered, a reset link has been generated." });
+    return;
+  }
+
+  const token = randomBytes(32).toString("hex");
+  const { createHash } = await import("crypto");
+  const tokenHash = createHash("sha256").update(token).digest("hex");
+  const expiry = new Date(Date.now() + 60 * 60 * 1000);
+
+  await db
+    .update(usersTable)
+    .set({ resetToken: tokenHash, resetTokenExpiry: expiry })
+    .where(eq(usersTable.id, user.id));
+
+  res.json({
+    message: "Reset link generated (in production this would be emailed)",
+    resetLink: `/reset-password?token=${token}`,
+  });
+});
+
+router.post("/auth/reset-password", async (req: Request, res: Response) => {
+  const { token, password } = req.body;
+  if (!token || !password) {
+    res.status(400).json({ error: "Token and password are required" });
+    return;
+  }
+  if (password.length < 6) {
+    res.status(400).json({ error: "Password must be at least 6 characters" });
+    return;
+  }
+
+  const { createHash } = await import("crypto");
+  const tokenHash = createHash("sha256").update(token).digest("hex");
+
+  const [user] = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.resetToken, tokenHash));
+
+  if (!user || !user.resetTokenExpiry || user.resetTokenExpiry < new Date()) {
+    res.status(400).json({ error: "Reset link is invalid or has expired." });
+    return;
+  }
+
+  const newHash = hashPassword(password);
+  await db
+    .update(usersTable)
+    .set({ passwordHash: newHash, resetToken: null, resetTokenExpiry: null })
+    .where(eq(usersTable.id, user.id));
+
+  res.json({ success: true });
+});
+
 router.get("/login", async (req: Request, res: Response) => {
   const config = await getOidcConfig();
   const callbackUrl = `${getOrigin(req)}/api/callback`;

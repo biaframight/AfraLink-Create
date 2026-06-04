@@ -1,4 +1,4 @@
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -184,12 +184,17 @@ export default function LoginPage() {
                 Sign In
               </Button>
 
-              <p className="text-center text-sm text-slate-500">
-                Don't have an account?{" "}
-                <button type="button" onClick={() => setTab("register")} className="text-primary font-semibold hover:underline">
-                  Create one free
-                </button>
-              </p>
+              <div className="flex items-center justify-between text-sm">
+                <Link href="/forgot-password" className="text-slate-500 hover:text-primary">
+                  Forgot password?
+                </Link>
+                <span className="text-slate-500">
+                  No account?{" "}
+                  <button type="button" onClick={() => setTab("register")} className="text-primary font-semibold hover:underline">
+                    Sign up free
+                  </button>
+                </span>
+              </div>
             </form>
           </Form>
         ) : (
