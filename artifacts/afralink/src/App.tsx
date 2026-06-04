@@ -2,8 +2,7 @@ import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useAuth } from "@workspace/replit-auth-web";
-import { useGetMyProfile, getGetMyProfileQueryKey } from "@workspace/api-client-react";
+import { useAuth, AuthProvider } from "@/lib/auth";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
@@ -22,7 +21,11 @@ import ListVehicle from "@/pages/list-vehicle";
 import AdminDashboard from "@/pages/admin";
 import Profile from "@/pages/profile";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: (count, err: any) => err?.status >= 500 && count < 2 },
+  },
+});
 
 function ProtectedRoute({
   component: Component,
@@ -34,7 +37,7 @@ function ProtectedRoute({
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-64 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -45,7 +48,7 @@ function ProtectedRoute({
     return null;
   }
 
-  if (adminOnly && (user as any)?.role !== "admin") {
+  if (adminOnly && user?.role !== "admin") {
     setLocation("/");
     return null;
   }
@@ -54,22 +57,20 @@ function ProtectedRoute({
 }
 
 function OnboardingGate({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { data: profile, isLoading: profileLoading } = useGetMyProfile({
-    query: { enabled: isAuthenticated, queryKey: getGetMyProfileQueryKey() },
-  });
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
 
   const skipPaths = ["/login", "/onboarding"];
-  if (skipPaths.some((p) => location.startsWith(p))) {
-    return <>{children}</>;
-  }
+  if (skipPaths.some((p) => location.startsWith(p))) return <>{children}</>;
 
-  if (isAuthenticated && !authLoading && !profileLoading && profile) {
-    if (!profile.phone || !profile.fullName) {
-      setLocation("/onboarding");
-      return null;
-    }
+  if (
+    !isLoading &&
+    isAuthenticated &&
+    user &&
+    (!user.phone || !user.fullName)
+  ) {
+    setLocation("/onboarding");
+    return null;
   }
 
   return <>{children}</>;
@@ -86,38 +87,26 @@ function Router() {
           <AppLayout>
             <Switch>
               <Route path="/" component={Home} />
-
               <Route path="/drivers" component={DriversList} />
               <Route path="/drivers/:id" component={DriverDetail} />
-
               <Route path="/rentals" component={RentalsList} />
               <Route path="/rentals/:id" component={RentalDetail} />
 
               <Route path="/dashboard">
                 {() => <ProtectedRoute component={CustomerDashboard} />}
               </Route>
-
               <Route path="/driver-dashboard">
                 {() => <ProtectedRoute component={DriverDashboard} />}
               </Route>
-
               <Route path="/become-driver">
                 {() => <ProtectedRoute component={BecomeDriver} />}
               </Route>
-
               <Route path="/list-vehicle">
                 {() => <ProtectedRoute component={ListVehicle} />}
               </Route>
-
               <Route path="/admin">
-                {() => (
-                  <ProtectedRoute
-                    component={AdminDashboard}
-                    adminOnly={true}
-                  />
-                )}
+                {() => <ProtectedRoute component={AdminDashboard} adminOnly />}
               </Route>
-
               <Route path="/profile">
                 {() => <ProtectedRoute component={Profile} />}
               </Route>
@@ -136,7 +125,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
+          <AuthProvider>
+            <Router />
+          </AuthProvider>
         </WouterRouter>
         <Toaster />
       </TooltipProvider>

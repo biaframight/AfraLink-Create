@@ -26,6 +26,7 @@ export const usersTable = pgTable("users", {
   profilePhotoUrl: text("profile_photo_url"),
   state: text("state"),
   city: text("city"),
+  passwordHash: text("password_hash"),
   isSuspended: boolean("is_suspended").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),

@@ -1,6 +1,6 @@
 import { useParams } from "wouter";
 import { useGetRental, useListReviews, useCreateReview, getListReviewsQueryKey } from "@workspace/api-client-react";
-import { useAuth } from "@workspace/replit-auth-web";
+import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { Phone, MapPin, ShieldCheck, Star, Car, AlertCircle, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";

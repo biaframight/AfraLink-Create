@@ -1,5 +1,5 @@
 import { useListBookings, useUpdateBooking, useGetMyProfile, getListBookingsQueryKey } from "@workspace/api-client-react";
-import { useAuth } from "@workspace/replit-auth-web";
+import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useState } from "react";

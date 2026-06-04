@@ -1,5 +1,5 @@
 import { useGetMyProfile, useUpdateMyProfile, useListStates, useListCities, getGetMyProfileQueryKey } from "@workspace/api-client-react";
-import { useAuth } from "@workspace/replit-auth-web";
+import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRequestUploadUrl } from "@workspace/api-client-react";
 import { Link } from "wouter";
