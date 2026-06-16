@@ -3,9 +3,10 @@
   "installCommand": "pnpm install",
   "buildCommand": "BASE_PATH=/ PORT=3000 NODE_ENV=production pnpm --filter @workspace/afralink run build",
   "outputDirectory": "public",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ],
   "functions": {
     "api/index.ts": {
