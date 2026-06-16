@@ -1,8 +1,8 @@
-import { useParams } from "wouter";
+import { useParams, Link } from "wouter";
 import { useGetRental, useListReviews, useCreateReview, getListReviewsQueryKey } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
-import { Phone, MapPin, ShieldCheck, Star, Car, AlertCircle, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Phone, MapPin, ShieldCheck, Star, Car, AlertCircle, Loader2, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,6 +66,11 @@ export default function RentalDetail() {
 
   return (
     <div className="space-y-8">
+      <Link href="/rentals">
+        <Button variant="ghost" className="gap-2 text-slate-600 hover:text-slate-900 -ml-2">
+          <ArrowLeft className="w-4 h-4" /> Back to Rentals
+        </Button>
+      </Link>
       {/* Photo gallery */}
       <div className="relative rounded-3xl overflow-hidden bg-slate-100 h-72 md:h-96">
         {photos.length > 0 ? (

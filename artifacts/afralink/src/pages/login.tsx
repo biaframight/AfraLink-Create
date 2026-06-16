@@ -30,7 +30,7 @@ const registerSchema = z.object({
 });
 
 const ROLES = [
-  { value: "customer", label: "Find transport", icon: Users },
+  { value: "customer", label: "Book a Ride", icon: Users },
   { value: "driver", label: "Offer transport", icon: Car },
   { value: "rental_owner", label: "Rent my vehicle", icon: Package },
 ];
@@ -104,10 +104,10 @@ export default function LoginPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
       <div className="bg-primary px-6 pt-10 pb-8 text-white">
-        <div className="flex items-center gap-2 mb-4">
+        <Link href="/" className="flex items-center gap-2 mb-4 w-fit">
           <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center font-bold text-xl">A</div>
           <span className="text-xl font-bold tracking-tight">AfraLink</span>
-        </div>
+        </Link>
         <h1 className="text-2xl font-bold leading-tight">
           {tab === "login" ? "Welcome back" : "Join AfraLink"}
         </h1>

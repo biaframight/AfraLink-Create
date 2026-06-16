@@ -31,6 +31,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Loader2, CheckCircle, Car, Users, Package } from "lucide-react";
+import { Link } from "wouter";
 
 const onboardSchema = z.object({
   fullName: z.string().min(2, "Enter your full name"),
@@ -43,7 +44,7 @@ const onboardSchema = z.object({
 const ROLES = [
   {
     value: "customer",
-    label: "Find transport",
+    label: "Book a Ride",
     desc: "I need drivers, rentals or logistics",
     icon: Users,
   },
@@ -140,12 +141,12 @@ export default function Onboarding() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <div className="bg-primary text-white px-6 pt-14 pb-8">
-        <div className="flex items-center gap-2 mb-5">
+        <Link href="/" className="flex items-center gap-2 mb-5 w-fit">
           <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center font-bold text-white">
             A
           </div>
           <span className="font-bold text-lg">AfraLink</span>
-        </div>
+        </Link>
         <h1 className="text-2xl font-bold">Welcome! 🎉</h1>
         <p className="text-white/70 mt-1 text-sm">
           Let's complete your profile to get started

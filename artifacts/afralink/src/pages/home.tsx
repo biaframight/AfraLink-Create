@@ -57,7 +57,7 @@ export default function Home() {
             Southern Nigeria's #1 Transport Hub
           </Badge>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight max-w-4xl leading-tight">
-            Find a Driver, Rent a Vehicle, Move Anything.
+            Book a Ride, Rent a Vehicle, Move Anything.
           </h1>
           <p className="text-xl md:text-2xl text-slate-300 max-w-2xl font-light">
             Direct connections. Verified providers. Zero hidden fees.
@@ -102,7 +102,7 @@ export default function Home() {
             </div>
             <Button type="submit" size="lg" className="h-14 w-full md:w-auto rounded-2xl px-10 bg-primary hover:bg-primary/90 text-white text-lg font-bold shadow-lg shadow-primary/30">
               <Search className="w-5 h-5 mr-2" />
-              Find Drivers
+              Book a Ride
             </Button>
           </form>
         </div>
@@ -112,8 +112,8 @@ export default function Home() {
       <section className="space-y-8">
         <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">What do you need?</h2>
-            <p className="text-slate-500 mt-2">Browse our wide range of transportation services.</p>
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Book a Ride</h2>
+            <p className="text-slate-500 mt-2">Choose a service and connect with a verified provider.</p>
           </div>
         </div>
         <div className="grid grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
