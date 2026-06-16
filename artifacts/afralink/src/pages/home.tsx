@@ -53,9 +53,6 @@ export default function Home() {
         <div className="absolute inset-0 opacity-30 bg-[url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070')] bg-cover bg-center mix-blend-overlay"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent pointer-events-none"></div>
         <div className="relative z-10 px-6 py-16 md:py-24 flex flex-col items-center text-center space-y-8">
-          <Badge className="bg-primary/20 text-primary-foreground hover:bg-primary/30 text-sm px-4 py-1.5 rounded-full border border-primary/30">
-            Southern Nigeria's #1 Transport Hub
-          </Badge>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight max-w-4xl leading-tight">
             Book a Ride, Rent a Vehicle, Move Anything.
           </h1>
