@@ -2,7 +2,7 @@ import { useParams, Link } from "wouter";
 import { useGetDriver, useListReviews, useCreateBooking, useCreateReview, getListReviewsQueryKey } from "@workspace/api-client-react";
 import { useAuth } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
-import { Phone, MapPin, ShieldCheck, Star, Car, AlertCircle, Loader2, ArrowLeft } from "lucide-react";
+import { Phone, MapPin, ShieldCheck, Star, Car, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -102,11 +102,6 @@ export default function DriverDetail() {
 
   return (
     <div className="space-y-8">
-      <Link href="/drivers">
-        <Button variant="ghost" className="gap-2 text-slate-600 hover:text-slate-900 -ml-2">
-          <ArrowLeft className="w-4 h-4" /> Back to Drivers
-        </Button>
-      </Link>
       <Card className="overflow-hidden border-0 shadow-lg bg-white">
         <CardContent className="p-0">
           <div className="h-28 bg-gradient-to-r from-slate-800 to-slate-700" />

@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { Home, Users, Car, Calendar, User, LogOut, LogIn, Menu, X, Shield, Truck, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { BackButton } from "@/components/BackButton";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -192,6 +193,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Page Content */}
       <main className="flex-1 pb-16 md:pb-0">
+        {location !== "/" && (
+          <div className="px-4 sm:px-6 lg:px-8 pt-3">
+            <BackButton />
+          </div>
+        )}
         {children}
       </main>
 
