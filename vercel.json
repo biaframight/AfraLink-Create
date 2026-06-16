@@ -4,7 +4,7 @@
   "buildCommand": "pnpm --filter @workspace/api-server run build && BASE_PATH=/ PORT=3000 NODE_ENV=production pnpm --filter @workspace/afralink run build",
   "outputDirectory": "public",
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index" },
+    { "src": "/api/(.*)", "dest": "/api" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ],
