@@ -186,7 +186,7 @@ export default function Home() {
                         <Phone className="w-4 h-4 mr-2" /> Call
                       </Button>
                     </a>
-                    <a href={`https://wa.me/234${driver.phone.replace(/^0/, '')}?text=Hi, I found your profile on AfraLink and would like to book your services.`} target="_blank" rel="noopener noreferrer" className="flex-1">
+                    <a href={`https://wa.me/234${driver.phone.replace(/^(\+234|0)/, "")}?text=Hi, I found your profile on AfraLink and would like to book your services.`} target="_blank" rel="noopener noreferrer" className="flex-1">
                       <Button className="w-full rounded-xl bg-green-500 hover:bg-green-600 text-white border-0">
                         WhatsApp
                       </Button>
