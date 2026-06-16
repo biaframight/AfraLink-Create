@@ -1,23 +1,43 @@
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import * as schema from "./schema";
 
 const { Pool } = pg;
 
-const connectionString = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+type Schema = typeof schema;
 
-if (!connectionString) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+let _pool: pg.Pool | null = null;
+let _db: NodePgDatabase<Schema> | null = null;
+
+function getPool(): pg.Pool {
+  if (!_pool) {
+    const connectionString =
+      process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+    if (!connectionString) {
+      throw new Error(
+        "DATABASE_URL must be set. Did you forget to provision a database?",
+      );
+    }
+    const isSupabase = !!process.env.SUPABASE_DATABASE_URL;
+    _pool = new Pool({
+      connectionString,
+      ...(isSupabase && { ssl: { rejectUnauthorized: false } }),
+    });
+  }
+  return _pool;
 }
 
-const isSupabase = !!process.env.SUPABASE_DATABASE_URL;
-
-export const pool = new Pool({
-  connectionString,
-  ...(isSupabase && { ssl: { rejectUnauthorized: false } }),
+export const pool = new Proxy({} as pg.Pool, {
+  get(_, prop) {
+    return (getPool() as any)[prop as string];
+  },
 });
-export const db = drizzle(pool, { schema });
+
+export const db = new Proxy({} as NodePgDatabase<Schema>, {
+  get(_, prop) {
+    if (!_db) _db = drizzle(getPool(), { schema });
+    return (_db as any)[prop as string];
+  },
+});
 
 export * from "./schema";
