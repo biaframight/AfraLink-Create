@@ -1,0 +1,47 @@
+{
+  "name": "AfraLink - Transport Marketplace",
+  "short_name": "AfraLink",
+  "description": "Connect with drivers and car rental owners across Southern Nigeria",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#16a34a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["travel", "transportation", "lifestyle"],
+  "lang": "en-NG",
+  "dir": "ltr",
+  "scope": "/",
+  "shortcuts": [
+    {
+      "name": "Find Drivers",
+      "url": "/drivers",
+      "description": "Browse available drivers near you"
+    },
+    {
+      "name": "Car Rentals",
+      "url": "/rentals",
+      "description": "Browse available cars for rent"
+    }
+  ]
+}
