@@ -121,6 +121,24 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
     `,
     },
   });
+
+  // Build a CommonJS bundle of app.ts specifically for Vercel serverless functions.
+  // Vercel's ncc bundler wraps files in CJS and cannot handle import.meta.url,
+  // so this build uses format:"cjs" with no ESM banner.
+  await esbuild({
+    entryPoints: [path.resolve(artifactDir, "src/app.ts")],
+    platform: "node",
+    bundle: true,
+    format: "cjs",
+    outfile: path.resolve(distDir, "app.cjs"),
+    logLevel: "info",
+    external: [
+      "*.node", "sharp", "better-sqlite3", "sqlite3", "canvas", "bcrypt",
+      "argon2", "fsevents", "re2", "farmhash", "pg-native", "oracledb",
+      "nodemailer", "knex", "typeorm", "@prisma/client", "@mikro-orm/*",
+    ],
+    sourcemap: "linked",
+  });
 }
 
 buildAll().catch((err) => {
