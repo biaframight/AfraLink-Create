@@ -1,0 +1,7 @@
+.local
+.agents
+attached_assets
+artifacts/api-server/dist
+artifacts/afralink/dist
+artifacts/mockup-sandbox
+scripts
