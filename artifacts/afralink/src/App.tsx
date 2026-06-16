@@ -6,6 +6,7 @@ import { useAuth, AuthProvider } from "@/lib/auth";
 import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
+import { useEffect } from "react";
 
 import Home from "@/pages/home";
 import LoginPage from "@/pages/login";
@@ -37,6 +38,17 @@ function ProtectedRoute({
   const { user, isAuthenticated, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
 
+  useEffect(() => {
+    if (isLoading) return;
+    if (!isAuthenticated) {
+      setLocation(`/login?next=${encodeURIComponent(location)}`);
+      return;
+    }
+    if (adminOnly && user?.role !== "admin") {
+      setLocation("/");
+    }
+  }, [isLoading, isAuthenticated, adminOnly, user?.role, location, setLocation]);
+
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -45,15 +57,8 @@ function ProtectedRoute({
     );
   }
 
-  if (!isAuthenticated) {
-    setLocation(`/login?next=${encodeURIComponent(location)}`);
-    return null;
-  }
-
-  if (adminOnly && user?.role !== "admin") {
-    setLocation("/");
-    return null;
-  }
+  if (!isAuthenticated) return null;
+  if (adminOnly && user?.role !== "admin") return null;
 
   return <Component {...rest} />;
 }
@@ -62,18 +67,16 @@ function OnboardingGate({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [location, setLocation] = useLocation();
 
-  const skipPaths = ["/login", "/onboarding"];
-  if (skipPaths.some((p) => location.startsWith(p))) return <>{children}</>;
+  const skipPaths = ["/login", "/onboarding", "/forgot-password", "/reset-password"];
+  const shouldSkip = skipPaths.some((p) => location.startsWith(p));
 
-  if (
-    !isLoading &&
-    isAuthenticated &&
-    user &&
-    (!user.phone || !user.fullName)
-  ) {
-    setLocation("/onboarding");
-    return null;
-  }
+  useEffect(() => {
+    if (shouldSkip || isLoading || !isAuthenticated || !user) return;
+    if (user.role === "admin") return;
+    if (!user.phone || !user.fullName) {
+      setLocation("/onboarding");
+    }
+  }, [shouldSkip, isLoading, isAuthenticated, user, setLocation]);
 
   return <>{children}</>;
 }

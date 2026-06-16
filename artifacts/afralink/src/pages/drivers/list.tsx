@@ -11,8 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const VEHICLE_TYPES = [
-  "Private Car", "Taxi", "Keke (Tricycle)", "Motorcycle", "Bus",
-  "Mini-Bus", "Van", "Pickup", "Truck", "Lorry", "Delivery Van", "Logistics"
+  "Taxi Ride", "Keke Ride", "Motorcycle Ride", "Intercity Transport",
+  "Bus Hire", "Truck Hire", "Pickup Hire", "Van Hire",
+  "Moving Services", "Delivery Services", "Logistics Services", "Car Rental"
 ];
 
 const container = {

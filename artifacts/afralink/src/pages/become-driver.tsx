@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 
-const VEHICLE_TYPES = ["Private Car", "Taxi", "Keke (Tricycle)", "Motorcycle", "Bus", "Mini-Bus", "Van", "Pickup", "Truck", "Lorry", "Delivery Van", "Logistics"];
+const VEHICLE_TYPES = ["Taxi Ride", "Keke Ride", "Motorcycle Ride", "Intercity Transport", "Bus Hire", "Truck Hire", "Pickup Hire", "Van Hire", "Moving Services", "Delivery Services", "Logistics Services", "Car Rental"];
 
 const step1Schema = z.object({
   fullName: z.string().min(2, "Full name required"),

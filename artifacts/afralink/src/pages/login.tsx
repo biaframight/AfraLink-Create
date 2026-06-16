@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -41,7 +41,10 @@ export default function LoginPage() {
   const [tab, setTab] = useState<"login" | "register">("login");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [showPw, setShowPw] = useState(false);
+  const [showLoginPw, setShowLoginPw] = useState(false);
+  const [showRegisterPw, setShowRegisterPw] = useState(false);
+
+  const registerFormRef = useRef<HTMLFormElement>(null);
 
   const params = new URLSearchParams(window.location.search);
   const next = params.get("next") || "/";
@@ -49,6 +52,15 @@ export default function LoginPage() {
   useEffect(() => {
     if (!isLoading && isAuthenticated) navigate(next);
   }, [isAuthenticated, isLoading, next, navigate]);
+
+  useEffect(() => {
+    if (tab !== "register") return;
+    const t = setTimeout(() => {
+      const first = registerFormRef.current?.querySelector("input");
+      first?.focus();
+    }, 30);
+    return () => clearTimeout(t);
+  }, [tab]);
 
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -100,6 +112,11 @@ export default function LoginPage() {
     }
   };
 
+  const switchTab = (t: "login" | "register") => {
+    setTab(t);
+    setError(null);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
@@ -123,7 +140,8 @@ export default function LoginPage() {
         {(["login", "register"] as const).map((t) => (
           <button
             key={t}
-            onClick={() => { setTab(t); setError(null); }}
+            type="button"
+            onClick={() => switchTab(t)}
             className={`flex-1 py-3.5 text-sm font-semibold transition-colors border-b-2 ${
               tab === t
                 ? "border-primary text-primary"
@@ -135,7 +153,7 @@ export default function LoginPage() {
         ))}
       </div>
 
-      <div className="flex-1 px-6 py-6 max-w-lg mx-auto w-full">
+      <div className="flex-1 px-6 py-6 max-w-lg mx-auto w-full overflow-y-auto">
         {error && (
           <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
             {error}
@@ -144,12 +162,18 @@ export default function LoginPage() {
 
         {tab === "login" ? (
           <Form {...loginForm}>
-            <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+            <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4" noValidate>
               <FormField control={loginForm.control} name="email" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="you@example.com" className="h-12" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                      className="h-12"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -161,17 +185,19 @@ export default function LoginPage() {
                   <FormControl>
                     <div className="relative">
                       <Input
-                        type={showPw ? "text" : "password"}
+                        type={showLoginPw ? "text" : "password"}
                         placeholder="••••••••"
+                        autoComplete="current-password"
                         className="h-12 pr-10"
                         {...field}
                       />
                       <button
                         type="button"
-                        onClick={() => setShowPw(v => !v)}
+                        onClick={() => setShowLoginPw(v => !v)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        tabIndex={-1}
                       >
-                        {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showLoginPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </FormControl>
@@ -190,7 +216,7 @@ export default function LoginPage() {
                 </Link>
                 <span className="text-slate-500">
                   No account?{" "}
-                  <button type="button" onClick={() => setTab("register")} className="text-primary font-semibold hover:underline">
+                  <button type="button" onClick={() => switchTab("register")} className="text-primary font-semibold hover:underline">
                     Sign up free
                   </button>
                 </span>
@@ -199,12 +225,17 @@ export default function LoginPage() {
           </Form>
         ) : (
           <Form {...registerForm}>
-            <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
+            <form ref={registerFormRef} onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4" noValidate>
               <FormField control={registerForm.control} name="fullName" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Emeka Okafor" className="h-12" {...field} />
+                    <Input
+                      placeholder="e.g. Emeka Okafor"
+                      autoComplete="name"
+                      className="h-12"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -214,7 +245,13 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="you@example.com" className="h-12" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                      className="h-12"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -226,17 +263,19 @@ export default function LoginPage() {
                   <FormControl>
                     <div className="relative">
                       <Input
-                        type={showPw ? "text" : "password"}
+                        type={showRegisterPw ? "text" : "password"}
                         placeholder="Min. 6 characters"
+                        autoComplete="new-password"
                         className="h-12 pr-10"
                         {...field}
                       />
                       <button
                         type="button"
-                        onClick={() => setShowPw(v => !v)}
+                        onClick={() => setShowRegisterPw(v => !v)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        tabIndex={-1}
                       >
-                        {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showRegisterPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </FormControl>
@@ -248,7 +287,13 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Phone <span className="text-slate-400 font-normal">(optional)</span></FormLabel>
                   <FormControl>
-                    <Input type="tel" placeholder="e.g. 08012345678" className="h-12" {...field} />
+                    <Input
+                      type="tel"
+                      placeholder="e.g. 08012345678"
+                      autoComplete="tel"
+                      className="h-12"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -285,7 +330,7 @@ export default function LoginPage() {
 
               <p className="text-center text-sm text-slate-500">
                 Already have an account?{" "}
-                <button type="button" onClick={() => setTab("login")} className="text-primary font-semibold hover:underline">
+                <button type="button" onClick={() => switchTab("login")} className="text-primary font-semibold hover:underline">
                   Sign in
                 </button>
               </p>

@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 
-const VEHICLE_TYPES = ["Private Car", "SUV", "Minivan", "Bus", "Pickup", "Truck", "Van", "Other"];
+const VEHICLE_TYPES = ["Sedan", "SUV", "Hatchback", "Minivan", "Van", "Bus", "Pickup Truck", "Truck", "Other"];
 const TRANSMISSIONS = ["Manual", "Automatic"];
 const FUEL_TYPES = ["Petrol", "Diesel", "Electric", "Hybrid"];
 
