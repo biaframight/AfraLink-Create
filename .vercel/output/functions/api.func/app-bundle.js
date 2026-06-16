@@ -90814,6 +90814,20 @@ app.use(import_express14.default.json());
 app.use(import_express14.default.urlencoded({ extended: true }));
 app.use(authMiddleware);
 app.use("/api", routes_default);
+app.use((err, _req, res, _next) => {
+  const isDev = process.env.NODE_ENV !== "production";
+  const isDbMissing = err.message?.includes("DATABASE_URL") || err.message?.includes("password authentication") || err.message?.includes("ECONNREFUSED") || err.message?.includes("connect ETIMEDOUT");
+  logger.error({ err }, "Unhandled route error");
+  res.status(500).json({
+    error: isDbMissing ? "Database connection failed \u2014 check SUPABASE_DATABASE_URL env var in Vercel" : "Internal server error",
+    ...isDev && { message: err.message, stack: err.stack },
+    // Always expose db status so we can diagnose prod issues
+    dbEnv: {
+      hasSupabase: !!process.env.SUPABASE_DATABASE_URL,
+      hasDatabase: !!process.env.DATABASE_URL
+    }
+  });
+});
 var app_default = app;
 /*! Bundled license information:
 
