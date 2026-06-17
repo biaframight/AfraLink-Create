@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import { Loader2 } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import { useEffect } from "react";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 import Home from "@/pages/home";
 import LoginPage from "@/pages/login";
@@ -137,6 +138,7 @@ function App() {
           </AuthProvider>
         </WouterRouter>
         <Toaster />
+        <PWAInstallPrompt />
       </TooltipProvider>
     </QueryClientProvider>
   );
