@@ -1,7 +1,3 @@
-.local
-.agents
-attached_assets
-artifacts/api-server/dist
-artifacts/afralink/dist
-artifacts/mockup-sandbox
-scripts
+# Force Vercel to always run vercel-build.mjs instead of using
+# the partially-committed .vercel/output from Git (which lacks JS bundles).
+.vercel/output
