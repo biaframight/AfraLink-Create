@@ -11,6 +11,7 @@ import reportsRouter from "./reports";
 import locationsRouter from "./locations";
 import adminRouter from "./admin";
 import featuredRouter from "./featured";
+import pushRouter from "./push";
 
 const router: IRouter = Router();
 
@@ -26,5 +27,6 @@ router.use(reportsRouter);
 router.use(locationsRouter);
 router.use(adminRouter);
 router.use(featuredRouter);
+router.use(pushRouter);
 
 export default router;

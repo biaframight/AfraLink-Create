@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import { useEffect } from "react";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 import Home from "@/pages/home";
 import LoginPage from "@/pages/login";
@@ -82,6 +83,12 @@ function OnboardingGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function PushSetup() {
+  const { isAuthenticated } = useAuth();
+  usePushNotifications(isAuthenticated);
+  return null;
+}
+
 function Router() {
   return (
     <OnboardingGate>
@@ -134,6 +141,7 @@ function App() {
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
           <AuthProvider>
+            <PushSetup />
             <Router />
           </AuthProvider>
         </WouterRouter>

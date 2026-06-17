@@ -53,8 +53,11 @@ export default function PWAInstallPrompt() {
 
     if (plat === "ios") {
       // iOS Safari: no event, show manual instructions after delay
-      setTimeout(() => setShow(true), 4000);
+      const t = setTimeout(() => setShow(true), 4000);
+      return () => clearTimeout(t);
     }
+
+    return undefined;
   }, []);
 
   function handleInstall() {

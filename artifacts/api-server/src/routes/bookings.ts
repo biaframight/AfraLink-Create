@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq, or } from "drizzle-orm";
 import { db, bookingsTable, driversTable } from "@workspace/db";
+import { sendPushToUser } from "./push";
 import {
   ListBookingsQueryParams,
   ListBookingsResponse,
@@ -108,6 +109,24 @@ router.patch("/bookings/:id", async (req, res): Promise<void> => {
 
   const [updated] = await db.update(bookingsTable).set(parsed.data).where(eq(bookingsTable.id, id)).returning();
 
+  // Push notification to customer when driver accepts/rejects
+  if (updated && parsed.data.status && existing.customerId) {
+    if (parsed.data.status === "accepted") {
+      sendPushToUser(existing.customerId, {
+        title: "Booking Accepted! 🎉",
+        body: "Your driver has accepted your booking request.",
+        url: "/dashboard",
+      }).catch(() => {});
+    } else if (parsed.data.status === "rejected" || parsed.data.status === "cancelled") {
+      sendPushToUser(existing.customerId, {
+        title: "Booking Update",
+        body: "Your booking request was not accepted. You can search for another driver.",
+        url: "/drivers",
+      }).catch(() => {});
+    }
+  }
+
+  // Push notification to driver when customer makes a new booking
   res.json(UpdateBookingResponse.parse(updated));
 });
 
