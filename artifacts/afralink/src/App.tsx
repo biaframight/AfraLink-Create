@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import AppLayout from "@/components/layout/AppLayout";
 import { useEffect } from "react";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 import Home from "@/pages/home";
@@ -137,18 +138,20 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <AuthProvider>
-            <PushSetup />
-            <Router />
-          </AuthProvider>
-        </WouterRouter>
-        <Toaster />
-        <PWAInstallPrompt />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <AuthProvider>
+              <PushSetup />
+              <Router />
+            </AuthProvider>
+          </WouterRouter>
+          <Toaster />
+          <PWAInstallPrompt />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
