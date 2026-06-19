@@ -19,6 +19,10 @@ function requireAdmin(req: any, res: any): boolean {
     res.status(401).json({ error: "Unauthorized" });
     return false;
   }
+  if (req.user?.role !== "admin") {
+    res.status(403).json({ error: "Forbidden" });
+    return false;
+  }
   return true;
 }
 
