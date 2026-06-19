@@ -11,14 +11,17 @@ let _db: NodePgDatabase<Schema> | null = null;
 
 function getPool(): pg.Pool {
   if (!_pool) {
+    // Prefer DATABASE_URL; fall back to SUPABASE_DATABASE_URL
     const connectionString =
-      process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+      process.env.DATABASE_URL || process.env.SUPABASE_DATABASE_URL;
     if (!connectionString) {
       throw new Error(
         "DATABASE_URL must be set. Did you forget to provision a database?",
       );
     }
-    const isSupabase = !!process.env.SUPABASE_DATABASE_URL;
+    // Enable SSL for any Supabase connection (detected from the URL)
+    const isSupabase = connectionString.includes("supabase.co") ||
+      connectionString.includes("pooler.supabase.com");
     _pool = new Pool({
       connectionString,
       ...(isSupabase && { ssl: { rejectUnauthorized: false } }),
