@@ -55,8 +55,9 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     error: isDbMissing
       ? "Database connection failed — check SUPABASE_DATABASE_URL env var in Vercel"
       : "Internal server error",
-    ...(isDev && { message: err.message, stack: err.stack }),
-    // Always expose db status so we can diagnose prod issues
+    // Expose message always (not stack) to help diagnose production issues
+    message: err.message,
+    code: (err as any).code,
     dbEnv: {
       hasSupabase: !!process.env.SUPABASE_DATABASE_URL,
       hasDatabase: !!process.env.DATABASE_URL,
