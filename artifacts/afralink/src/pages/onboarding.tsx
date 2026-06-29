@@ -30,15 +30,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2, CheckCircle, Car, Users, Package } from "lucide-react";
+import { Loader2, CheckCircle, Car, Users, Package, MapPin } from "lucide-react";
 import { Link } from "wouter";
 
 const onboardSchema = z.object({
   fullName: z.string().min(2, "Enter your full name"),
-  phone: z.string().min(10, "Enter a valid phone number"),
+  phone: z.string().min(10, "Enter a valid phone number (at least 10 digits)"),
   role: z.enum(["customer", "driver", "rental_owner"]),
-  state: z.string().optional(),
-  city: z.string().optional(),
+  state: z.string().min(1, "Select your state — required for verification"),
+  city: z.string().min(1, "Select your city — required for verification"),
 });
 
 const ROLES = [
@@ -102,13 +102,14 @@ export default function Onboarding() {
 
   useEffect(() => {
     if (profile) {
-      if (profile.phone) {
+      if (profile.phone && profile.state && profile.city) {
         setLocation("/");
         return;
       }
-      if (profile.fullName) {
-        form.setValue("fullName", profile.fullName);
-      }
+      if (profile.fullName) form.setValue("fullName", profile.fullName);
+      if (profile.phone) form.setValue("phone", profile.phone);
+      if (profile.state) form.setValue("state", profile.state);
+      if (profile.city) form.setValue("city", profile.city);
     }
   }, [profile, form, setLocation]);
 
@@ -124,8 +125,10 @@ export default function Onboarding() {
           else if (role === "rental_owner") setLocation("/list-vehicle");
           else setLocation("/");
         },
-        onError: () =>
-          toast({ title: "Could not save profile", variant: "destructive" }),
+        onError: (err: any) => {
+          const msg = err?.response?.data?.error || err?.message || "Could not save profile";
+          toast({ title: "Setup failed", description: msg, variant: "destructive" });
+        },
       }
     );
   };
@@ -149,7 +152,14 @@ export default function Onboarding() {
         </Link>
         <h1 className="text-2xl font-bold">Welcome! 🎉</h1>
         <p className="text-white/70 mt-1 text-sm">
-          Let's complete your profile to get started
+          Complete your profile to get started
+        </p>
+      </div>
+
+      <div className="bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-2">
+        <MapPin className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+        <p className="text-amber-800 text-xs leading-relaxed">
+          <strong>Your phone and location are required</strong> — they are used to connect you with drivers and customers nearby, and for identity verification on the platform.
         </p>
       </div>
 
@@ -179,7 +189,9 @@ export default function Onboarding() {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-semibold">Phone Number</FormLabel>
+                  <FormLabel className="font-semibold">
+                    Phone Number <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="e.g. 08012345678"
@@ -249,10 +261,9 @@ export default function Onboarding() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="font-semibold">
-                    Your State{" "}
-                    <span className="text-slate-400 font-normal">(optional)</span>
+                    Your State <span className="text-red-500">*</span>
                   </FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={(v) => { field.onChange(v); form.setValue("city", ""); }} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="h-12 text-base">
                         <SelectValue placeholder="Select your state" />
@@ -266,35 +277,41 @@ export default function Onboarding() {
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
                 </FormItem>
               )}
             />
 
-            {selectedState && (
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-semibold">City</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="h-12 text-base">
-                          <SelectValue placeholder="Select your city" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {citiesResponse?.cities?.map((c) => (
-                          <SelectItem key={c.id} value={c.name}>
-                            {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-            )}
+            <FormField
+              control={form.control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-semibold">
+                    Your City <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={!selectedState}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="h-12 text-base">
+                        <SelectValue placeholder={selectedState ? "Select your city" : "Select a state first"} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {citiesResponse?.cities?.map((c) => (
+                        <SelectItem key={c.id} value={c.name}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <Button
               type="submit"
